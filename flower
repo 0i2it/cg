@@ -1,0 +1,91 @@
+#include<iostream>
+#include<GL/glut.h>
+#include<cmath>
+using namespace std;
+bool flag=true;
+int p,xc,yc;
+void circle(int xc,int yc,int radius){
+  int x=0;
+  int y=radius;
+
+  p=3-2*radius;
+
+
+  while(x<=y){
+          glBegin(GL_POINTS);
+          glPointSize(20);
+      glVertex2i(xc+x,yc+y);
+        glVertex2i(xc+y,yc+x);
+        glVertex2i(xc-x,yc+y);
+        glVertex2i(xc-y,yc+x);
+        glVertex2i(xc-x,yc-y);
+        glVertex2i(xc-y,yc-x);
+        glVertex2i(xc+x,yc-y);
+        glVertex2i(xc+y,yc-x);
+        glEnd();
+
+        x++;
+    if(p>=0){
+        p+=(4*(x-y))+10;
+        y--;
+    }
+    else{
+        p+=(4*x)+6;
+    }
+    }
+    glEnd();
+glFlush();
+
+}
+
+void mouse(int button,int state,int x,int y){
+if(button==GLUT_LEFT_BUTTON && state==GLUT_DOWN){
+    if(flag==true){
+        xc=x;
+        yc=y;
+        flag=false;
+    }
+    else{
+     int r=abs(xc-x);
+         glPointSize(3);
+         //middle 2 circles
+         circle(xc,yc,r);
+        circle(xc,yc,r+25);
+//outer 6 circles:
+       for(int i=0;i<6;i++){
+       float angle=i * (2*M_PI /6);
+       int x=xc+(r*2*cos(angle));
+       int y=yc+(2*r*sin(angle));
+       circle(x,y,r);
+
+
+         flag=false;
+       glFlush();
+    }
+
+}
+}
+}
+
+void init(){
+glClearColor(1,1,1,1);
+glClear(GL_COLOR_BUFFER_BIT);
+gluOrtho2D(0,600,600,0);
+}
+
+void primitive(){
+glColor3f(0,0,0);
+glutMouseFunc(mouse);
+}
+
+int main (int argc,char **argv){
+glutInit(&argc,argv);
+glutInitDisplayMode(GLUT_SINGLE);
+glutInitWindowPosition(0,0);
+glutInitWindowSize(600,600);
+glutCreateWindow("abcd");
+init();
+glutDisplayFunc(primitive);
+glutMainLoop();
+return 0;
+}
