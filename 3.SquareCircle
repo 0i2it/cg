@@ -1,0 +1,186 @@
+#include<iostream>
+#include<math.h>
+#include<GL/glut.h>
+#include<stdlib.h>
+using namespace std;
+int p,xst,yst,xend,yend,xc,yc,radius;
+int pt=0;
+void drawPoints(int x,int y){
+glColor3f(0,0,0);
+glPointSize(2);
+glBegin(GL_POINTS);
+glVertex2i(x,y);
+glEnd();
+}
+
+void simpleline(int x1,int y1,int x2,int y2){
+  int x,y,xinc,yinc;
+
+  int dx=abs(x2-x1);
+  int dy=abs(y2-y1);
+
+  if(x2>x1){
+    xinc=1;
+
+  }else{
+  xinc=-1;
+}
+
+
+  if(y2>y1)
+{
+yinc=1;
+}  else{
+    yinc=-1;
+}
+
+  glBegin(GL_POINTS);
+  if(dx>dy){
+
+    p=2*dy-dx;
+    x=x1;
+    y=y1;
+
+
+  for(int i=0;i<=dx;i++){
+      glVertex2i(x,y);
+      x+=xinc;
+
+  if(p>=0){
+    p+=2*(dy-dx);
+    y+=yinc;
+  }
+  else{
+    p+=2*dy;
+  }
+
+  }
+  }
+
+  else{
+
+    p=2*dx-dy;
+    x=x1;
+    y=y1;
+
+
+  for(int i=0;i<=dy;i++){
+      glVertex2i(x,y);
+      y+=yinc;
+
+  if(p>=0){
+    p+=2*(dx-dy);
+    x+=xinc;
+  }
+  else{
+    p+=2*dx;
+  }
+
+  }
+  }
+glEnd();
+glFlush();
+}
+
+void drawcircle(int xc,int yc,int radius){
+    int x=0;
+    int y=radius;
+    int p=3-2*radius;
+
+    glPointSize(2);
+    glBegin(GL_POINTS);
+
+    while(x<=y){
+       glVertex2i(xc+x,yc+y);
+       glVertex2i(xc-x,yc+y);
+       glVertex2i(xc+x,yc-y);
+       glVertex2i(xc-x,yc-y);
+       glVertex2i(xc+y,yc+x);
+       glVertex2i(xc-y,yc+x);
+       glVertex2i(xc+y,yc-x);
+       glVertex2i(xc-y,yc-x);
+
+
+   if(p>=0){
+      p+=4*(x-y)+10;
+      y--;
+        x++;
+   }
+   else{
+    p+=4*x+6;
+      x++;
+   }
+    }
+
+   glEnd();
+
+}
+
+
+void mouse(int button,int state,int x,int y){
+ if(button==GLUT_LEFT_BUTTON && state==GLUT_DOWN){
+    if(pt==0){
+        xst=x;
+        yst=y;
+        pt++;
+    }
+    else{
+        xend=x;
+        yend=y;
+        //outer square
+        simpleline(xst,yst,xend,yst);
+        simpleline(xend,yst,xend,yend);
+        simpleline(xend,yend,xst,yend);
+        simpleline(xst,yend,xst,yst);
+
+        //mid square
+        float mx=(xst+xend)/2;
+        float my=(yst+yend)/2;
+        simpleline(mx,yst,xend,my);
+        simpleline(xend,my,mx,yend);
+        simpleline(mx,yend,xst,my);
+        simpleline(xst,my,mx,yst);
+
+        //circle inside:
+       xc=(xst+xend)/2;
+            yc=my;
+
+     float r=(abs((yst-my)*xc-(mx-xst)*yc+mx*my-yst*xst))/sqrt(pow(yst-my,2)+pow(mx-xst,2));
+             drawcircle(xc,yc,r);
+             pt=0;
+    }
+
+ }
+else if(button==GLUT_RIGHT_BUTTON && state==GLUT_DOWN){
+    pt=0;
+}
+glFlush();
+}
+
+void initialise(void){
+  glClearColor(1.0,1.0,1.0,1.0);
+  glClear(GL_COLOR_BUFFER_BIT);
+  gluOrtho2D(0,600,0,600);
+
+}
+
+void primitives(void){
+ glColor3f(0,0,0);
+ glutMouseFunc(mouse);
+
+}
+
+int main(int argc,char **argv){
+ glutInit(&argc,argv);
+ glutInitDisplayMode(GLUT_SINGLE);
+ glutInitWindowPosition(0,0);
+ glutInitWindowSize(600,600);
+ glutCreateWindow("123");
+ initialise();
+ glutDisplayFunc(primitives);
+ glutMainLoop();
+ return 0;
+
+}
+
+
