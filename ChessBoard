@@ -1,0 +1,126 @@
+#include<GL/glut.h>
+#include<iostream>
+#include<math.h>
+using namespace std;
+
+void SimpleLine(int x1,int y1, int x2, int y2){
+    int dx = abs(x2 - x1);
+    int dy  =abs(y2 - y1);
+    int x,y,p;
+    int Xincr, Yincr;
+
+    if(x2> x1){
+        Xincr = 1;
+    }
+    else{
+        Xincr =-1;
+    }
+    if(y2 > y1){
+        Yincr = 1;
+    }
+    else{
+        Yincr = -1;
+    }
+
+    if(dx> dy){
+        p= 2*dy-dx;
+        x=x1;
+        y=y1;
+
+       // glBegin(GL_POINTS);
+            for(int i=0;i<=dx;i++){
+                    x += Xincr;
+                    glVertex2i(x,y);
+                    if(p>=0){
+                        p+= 2*(dy- dx);
+                        y+=Yincr;
+
+                    }
+                    else{
+                        p += 2* dy;
+                    }
+
+            }
+            glEnd();
+    }
+
+    else if(dy> dx){
+        p= 2*dx-dy;
+        x=x1;
+        y=y1;
+
+   //    glBegin(GL_POINTS);
+            for(int i=0;i<=dy;i++){
+                    y += Yincr;
+                    glVertex2i(x,y);
+                    if(p>=0){
+                        p+= 2*(dx- dy);
+                        x+=Xincr;
+
+                    }
+                    else{
+                        p += 2* dx;
+                    }
+
+           }
+        glEnd();
+    }
+    glFlush();
+}
+
+void drawChessboard(int boardSize) {
+    int squareSize = 600 / boardSize;
+
+    // Draw the grid lines
+    for (int i = 0; i <= boardSize; i++) {
+        // Horizontal line
+        SimpleLine(0, i * squareSize, boardSize * squareSize, i * squareSize);
+        // Vertical line
+        SimpleLine(i * squareSize, 0, i * squareSize, boardSize * squareSize);
+    }
+
+    // Draw the squares
+    for (int row = 0; row < boardSize; row++) {
+        for (int col = 0; col < boardSize; col++) {
+            if ((row + col) % 2 == 0) {
+                glColor3f(1.0f, 1.0f, 1.0f); // White
+            } else {
+                glColor3f(0.0f, 0.0f, 0.0f); // Black
+            }
+
+            glBegin(GL_POLYGON);
+                glVertex2i(col * squareSize, row * squareSize);
+                glVertex2i((col + 1) * squareSize, row * squareSize);
+                glVertex2i((col + 1) * squareSize, (row + 1) * squareSize);
+                glVertex2i(col * squareSize, (row + 1) * squareSize);
+            glEnd();
+        }
+    }
+}
+
+void init() {
+	glClearColor(0,0,0,0);
+	gluOrtho2D(0,600,0,600);
+	glPointSize(1.0);
+}
+void display() {
+	glClear(GL_COLOR_BUFFER_BIT);
+	drawChessboard(4);
+
+	glFlush();
+
+
+}
+int main(int argc,char **argv)
+{
+	glutInit(&argc,argv);
+	glutInitDisplayMode(GLUT_SINGLE);
+	glutInitWindowPosition(350,100);
+	glutInitWindowSize(600,600);
+	glutCreateWindow("OpenGL - Bresenhams Algo ");
+	init();
+
+	glutDisplayFunc(display);
+	glutMainLoop();
+	return 0;
+}
