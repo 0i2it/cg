@@ -1,0 +1,141 @@
+#include <GL/glut.h>
+#include <stdlib.h>
+#include<iostream>
+using namespace std;
+
+void SimpleLine(int x1,int y1, int x2, int y2){
+    int dx = abs(x2 - x1);
+    int dy  =abs(y2 - y1);
+    int x,y,p;
+    int Xincr, Yincr;
+
+    if(x2> x1){
+        Xincr = 1;
+    }
+    else{
+        Xincr =-1;
+    }
+    if(y2 > y1){
+        Yincr = 1;
+    }
+    else{
+        Yincr = -1;
+    }
+
+    if(dx> dy){
+        p= 2*dy-dx;
+        x=x1;
+        y=y1;
+
+        glBegin(GL_POINTS);
+            while(x != x2){
+                    x += Xincr;
+                    glVertex2i(x,y);
+                    if(p>=0){
+                        p+= 2*(dy- dx);
+                        y+=Yincr;
+
+                    }
+                    else{
+                        p += 2* dy;
+                    }
+
+            }
+            glEnd();
+    }
+
+    else if(dy> dx){
+        p= 2*dx-dy;
+        x=x1;
+        y=y1;
+
+        glBegin(GL_POINTS);
+            while(y != y2){
+                    y += Yincr;
+                    glVertex2i(x,y);
+                    if(p>=0){
+                        p+= 2*(dx- dy);
+                        x+=Xincr;
+
+                    }
+                    else{
+                        p += 2* dx;
+                    }
+
+           }
+        glEnd();
+    }
+    glFlush();
+}
+
+
+void mouse(int button,int state, int x,int y)
+{
+    static int xst,yst,pt=0;
+    int xend,yend,mx,my;
+    if(button==GLUT_LEFT_BUTTON && state==GLUT_DOWN)
+    {
+        if(pt==0)
+        {
+            xst=x;
+            yst=y;
+            pt++;
+        }
+        else
+        {
+            xend=x;
+            yend=y;
+            //Outside Square
+            SimpleLine(xst,yst,xend,yst);
+            SimpleLine(xend,yst,xend,yend);
+            SimpleLine(xend,yend,xst,yend);
+            SimpleLine(xst,yend,xst,yst);
+            //Middle Square
+            mx=(xst+xend)/2;
+            my=(yst+yend)/2;
+            SimpleLine(mx,yend,xst,my);
+            SimpleLine(xst,my,mx,yst);
+            SimpleLine(mx,yst,xend,my);
+            SimpleLine(xend,my,mx,yend);
+            //innermost square
+            int mx1=(mx+xst)/2;
+            int my1=(my+yend)/2;
+            int my2=(my+yst)/2;
+            int mx2=(mx+xend)/2;
+            SimpleLine(mx1,my1,mx1,my2);
+            SimpleLine(mx1,my2,mx2,my2);
+            SimpleLine(mx2,my2,mx2,my1);
+            SimpleLine(mx2,my1,mx1,my1);
+
+        }
+    }
+    else if(button==GLUT_RIGHT_BUTTON && state==GLUT_DOWN)
+    {
+        pt=0;
+       
+    }
+    glFlush();
+}
+void initialize(void)
+{
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    gluOrtho2D(0, 600,600,0);
+}
+void primitives(void)
+{
+    glColor3f(1, 0, 0);
+    glutMouseFunc(mouse);
+}
+int main(int argc,char **argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowPosition(0, 0);
+    glutInitWindowSize(600, 600);
+    glutCreateWindow("OpenGL - Bresenham's Algorithm");
+    initialize();
+    glutDisplayFunc(primitives);
+    glutMainLoop();
+    return 0;
+}
