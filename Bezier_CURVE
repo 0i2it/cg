@@ -1,107 +1,35 @@
 #include <GL/glut.h>
 #include <cmath>
-#include <iostream>
-using namespace std;
 
-int windowWidth, windowHeight;
+void drawbezier() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1, 0, 0);
 
-struct Point {
-    double x, y;
-};
+    float p0[2] = {100, 100};
+    float p1[2] = {250, 400};
+    float p2[2] = {400, 100};
 
-Point controlPoints[3] = {{200, 200}, {300, 450}, {500, 150}};
-int numControlPoints = 3;
-
-void drawPoint(int x, int y) {
-    glBegin(GL_POINTS);
-    glVertex2i(x, y);
+    glBegin(GL_LINE_STRIP);
+    for (float t = 0; t <= 1.0; t += 0.01) {
+        float x = pow(1 - t, 2) * p0[0] + 2 * (1 - t) * t * p1[0] + pow(t, 2) * p2[0];
+        float y = pow(1 - t, 2) * p0[1] + 2 * (1 - t) * t * p1[1] + pow(t, 2) * p2[1];
+        glVertex2f(x, y);
+    }
     glEnd();
     glFlush();
 }
 
-void drawControlPoints() {
-    glColor3f(1.0, 1.0, 0.0);
-    glPointSize(3);
-    for (int i = 0; i < numControlPoints; i++) {
-        drawPoint(controlPoints[i].x, controlPoints[i].y);
-    }
-}
-
-long long Factorial(int n) {
-    long long ans = 1;
-    for (int i = 1; i <= n; i++) {
-        ans *= i;
-    }
-    return ans;
-}
-
-double Combination(int n, int k) {
-    return (double)Factorial(n) / (Factorial(n - k) * Factorial(k));
-}
-
-double bezierBlendingFunc(double t, int n, int k) {
-    return Combination(n, k) * pow(t, k) * pow(1 - t, n - k);
-}
-
-void drawBezierCurve() {
-    glColor3f(1.0, 0.0, 0.0);
-    glPointSize(1);
-
-    for (double t = 0.0; t <= 1.0; t += 0.001) {
-        double x = 0, y = 0;
-        for (int i = 0; i < numControlPoints; i++) {
-            x += bezierBlendingFunc(t, numControlPoints - 1, i) * controlPoints[i].x;
-            y += bezierBlendingFunc(t, numControlPoints - 1, i) * controlPoints[i].y;
-        }
-
-        drawPoint(x, y);
-    }
-}
-
-void Init() {
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    gluOrtho2D(0, windowWidth, 0, windowHeight);
-}
-
-void myDisplay() {
-    glClear(GL_COLOR_BUFFER_BIT);
-    drawControlPoints();
-    drawBezierCurve();
-    glFlush();
-}
-
-int pointToBeChanged = 2;
-
-void myMouse(int button, int action, int xMouse, int yMouse) {
-    if (button == GLUT_RIGHT_BUTTON && action == GLUT_DOWN) {
-        controlPoints[pointToBeChanged].x = xMouse;
-        controlPoints[pointToBeChanged].y = windowHeight - yMouse; // Correcting the Y coordinate to match window coordinates
-        glutPostRedisplay(); // Request a redraw of the window after changing the control point
-    }
-}
-
-void myKeyboard(unsigned char key, int xMouse, int yMouse) {
-    if (isdigit(key)) {
-        pointToBeChanged = key - '1';
-        if (pointToBeChanged < 0 || pointToBeChanged >= numControlPoints) {
-            pointToBeChanged = 0; // If the key is out of bounds, reset to 0
-        }
-    }
+void init() {
+    glClearColor(0, 0, 0, 0);
+    gluOrtho2D(0, 500, 0, 500);
 }
 
 int main(int argc, char** argv) {
-    windowWidth = windowHeight = 800;
     glutInit(&argc, argv);
-    glutInitWindowSize(windowWidth, windowHeight);
-    glutInitWindowPosition(0, 0);
-    glutCreateWindow("Bezier Curve");
-
-    Init();
-    glutDisplayFunc(myDisplay);
-    glutKeyboardFunc(myKeyboard);
-    glutMouseFunc(myMouse);
+    glutInitWindowSize(500, 500);
+    glutCreateWindow("Simple Bezier Curve");
+    init();
+    glutDisplayFunc(drawbezier);
     glutMainLoop();
-
     return 0;
 }
-
